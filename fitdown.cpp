@@ -253,15 +253,75 @@ class FitnessTracker{
 
 
 class LogWorkout{
-    vector<WorkoutLog> logs;
-    string log name;
+    private:
+        vector<WorkoutLog> logs;
+        string logName;
+
+        void saveLog() const{
+            ofstream workoutFile(logName);
+    
+            if(!workoutFile){
+                cout << "Error opening workout file" << endl;
+                return;
+            }
+        
+            for(const WorkoutLog& workout : logs){ //itterate thru vector of users and send to output file to save
+                workoutFile << workout.userName << " "
+                << workout.exercise << " "
+                << workout.sets << " "
+                << workout.reps << " "
+                << workout.date << endl; 
+            }
+        }
+
+
+        void loadLog(){
+            ifstream inFile(logName);
+
+            if(!inFile){
+                cout << "Error opening workout file" << endl;
+                return;
+            }
+
+            while(!inFile.eof()){
+                WorkoutLog newWorkout;
+                //grab info from saved file "load users"
+                inFile >> newWorkout.userName >> newWorkout.exercise >> newWorkout.sets >> newWorkout.reps >> newWorkout.date;
+
+                if(!inFile.fail()){
+                    logs.push_back(newWorkout);
+                }
+            }
+        }
+    public:
+        //constructor to initialize filename
+        LogWorkout(const string& logname) : logName(logname){
+            loadLog();
+        }
+
+        //destructor to save users to file when program ends
+        ~LogWorkout(){
+            saveLog();
+        }
+
+        //addWorkout function
+
+
+        //remove workout function
+
+        //pid is date 
+        // if same date and same workout add to sets n reps accordingly
+            
+    
+        
+    
     
 };
 
 
 int main(){
     FitnessTracker fitnesstracker("user_data.txt");
-
+    LogWorkout logworkout("workout_data.txt");
     int choice;
 
     do{ //loop until user no longer wants to update or check stats
