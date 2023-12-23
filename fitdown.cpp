@@ -283,14 +283,13 @@ class LogWorkout{
         LogWorkout(const string& logname) : logName(logname){
             loadLog();
         }
-
         //destructor to save users to file when program ends
         ~LogWorkout(){
             saveLog();
         }
 
         //addWorkout function
-        void addWorkout(){
+        void addWorkout(){  //NEXT NEED TO BE ABLE TO ADD DIFFERENT NUMBER OF REPS FOR EACH SET. SO EACH SET HAS ITS OWN NUMBER OF REPS
             string name, date, exercise;
             int sets, reps;
             float weight;
@@ -348,11 +347,6 @@ class LogWorkout{
 
         //pid is date 
         // if same date and same workout add to sets n reps accordingly
-            
-    
-        
-    
-    
 };
 
 
@@ -399,20 +393,5 @@ int main(){
         }
     } while(choice != 6);
 
-
     return 0;
 }
-
-//input name... if name already exists allows user to update stats
-                //if new name then new user is allocated and stats are logged
-
-
-//whenever returning user losses weight or PR'd a congratulations note will display
-
-
-//enter name to see your stats
-
-//remove user
-
-
-//ONE PROBLEM THE CONSOLE KEEPS GETTING PUSHED DOWN CAUSE SO MUCH TEXT. MAYBE EVEN HARD TO READ AFTER A COUPLE OF CHOICES
