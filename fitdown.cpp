@@ -16,13 +16,11 @@ struct WorkoutLog{
     string date;
 };
 
-
 struct UserData{
     string userName;
     float userWeight;
     string userHeight;
     int userAge;
-
     int maxBench;
     int maxSquat;
     int maxDeadlift;
@@ -252,10 +250,11 @@ class LogWorkout{
         
             for(const WorkoutLog& workout : logs){ //itterate thru vector of users and send to output file to save
                 workoutFile << workout.userName << " "
+                << workout.date << " "
                 << workout.exercise << " "
                 << workout.sets << " "
                 << workout.reps << " "
-                << workout.date << endl; 
+                << workout.weight << endl;
             }
         }
 
@@ -283,13 +282,14 @@ class LogWorkout{
         LogWorkout(const string& logname) : logName(logname){
             loadLog();
         }
+
         //destructor to save users to file when program ends
         ~LogWorkout(){
             saveLog();
         }
 
         //addWorkout function
-        void addWorkout(){  //NEXT NEED TO BE ABLE TO ADD DIFFERENT NUMBER OF REPS FOR EACH SET. SO EACH SET HAS ITS OWN NUMBER OF REPS
+        void addWorkout(){  //NEXT NEED TO BE ABLE TO ADD DIFFERENT REPS FOR EACH SET
             string name, date, exercise;
             int sets, reps;
             float weight;
@@ -299,6 +299,9 @@ class LogWorkout{
 
             cout << "Enter today's date: " << endl;
             cin >> date;
+
+            cout << "Enter exercise name: " << endl;
+            cin >> exercise;
 
             cout << "Enter number of sets: " << endl;
             cin >> sets;
@@ -335,7 +338,8 @@ class LogWorkout{
                 if(workout.userName == userName){
                     cout << userName << "'s workouts: " << endl;
                     cout << workout.date << " " << workout.exercise <<
-                    " sets:" << workout.sets << " reps: " << workout.reps <<endl;
+                    " sets:" << workout.sets << " reps: " << workout.reps <<
+                    " weight: " << workout.weight << endl;
                     userFound = true;
                     break;
                 }
