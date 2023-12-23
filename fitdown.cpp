@@ -7,7 +7,6 @@
 #include <algorithm> 
 using namespace std;
 
-
 struct WorkoutLog{
     string userName;
     string exercise;
@@ -27,9 +26,6 @@ struct UserData{
     int maxBench;
     int maxSquat;
     int maxDeadlift;
-
-    // vector<WorkoutLog> workoutLogs;
-
 };
 
 
@@ -37,7 +33,6 @@ class FitnessTracker{
     private: 
         vector<UserData> users;
         string fileName;
-
 
         void saveUsers() const{
             ofstream outFile(fileName);
@@ -54,12 +49,9 @@ class FitnessTracker{
                         << user.userAge << " "
                         << user.maxBench << " "
                         << user.maxSquat << " "
-                        << user.maxDeadlift << endl;
-                        
+                        << user.maxDeadlift << endl;       
             }
-
         }
-
 
         void loadUsers(){
             ifstream inFile(fileName);
@@ -99,7 +91,6 @@ class FitnessTracker{
             saveUsers();
         }
 
-
         void addOrUpdateUsersFromInput(){
             string name, height;
             float weight;
@@ -133,7 +124,6 @@ class FitnessTracker{
                 cout << "Enter NEW deadlift PR: ";
                 cin >> deadlift;
 
-                
                 //congrats on progress
                 if(existingUser->userWeight > weight){ //weight loss
                     cout << "\nCongrats on loosing " << existingUser->userWeight - weight << " pounds!" << endl;
@@ -187,7 +177,6 @@ class FitnessTracker{
             }
         }
     
-
         void addUsers(const string& name, float weight, string height, int age, int bench, int squat, int deadlift){
             UserData newUser;
             newUser.userName = name;
@@ -223,7 +212,6 @@ class FitnessTracker{
             string currentName;
             cout << "\nEnter your name to see your stats: ";
             cin >> currentName;
-
             bool userFound = false;
 
             for(UserData& user : users){
@@ -245,10 +233,7 @@ class FitnessTracker{
             if(!userFound){
                 cout << "User " << currentName << " was not found" << endl;
             }
-
         }
-
-        
 };
 
 
@@ -274,25 +259,25 @@ class LogWorkout{
             }
         }
 
-
         void loadLog(){
-            ifstream inFile(logName);
+            ifstream workinFile(logName);
 
-            if(!inFile){
+            if(!workinFile){
                 cout << "Error opening workout file" << endl;
                 return;
             }
 
-            while(!inFile.eof()){
+            while(!workinFile.eof()){
                 WorkoutLog newWorkout;
                 //grab info from saved file "load users"
-                inFile >> newWorkout.userName >> newWorkout.exercise >> newWorkout.sets >> newWorkout.reps >> newWorkout.date;
+                workinFile >> newWorkout.userName >> newWorkout.exercise >> newWorkout.sets >> newWorkout.reps >> newWorkout.date;
 
-                if(!inFile.fail()){
+                if(!workinFile.fail()){
                     logs.push_back(newWorkout);
                 }
             }
         }
+
     public:
         //constructor to initialize filename
         LogWorkout(const string& logname) : logName(logname){
@@ -305,9 +290,61 @@ class LogWorkout{
         }
 
         //addWorkout function
+        void addWorkout(){
+            string name, date, exercise;
+            int sets, reps;
+            float weight;
 
+            cout << "Enter name: " << endl;
+            cin >> name;
+
+            cout << "Enter today's date: " << endl;
+            cin >> date;
+
+            cout << "Enter number of sets: " << endl;
+            cin >> sets;
+
+            cout << "Enter number of reps: " << endl;
+            cin >> reps;
+
+            cout << "Enter weight: " << endl;
+            cin >> weight;
+
+            WorkoutLog newWorkout;
+            newWorkout.userName = name;
+            newWorkout.date = date;
+            newWorkout.exercise = exercise;
+            newWorkout.reps = reps;
+            newWorkout.sets = sets;
+            newWorkout.weight = weight;
+
+            logs.push_back(newWorkout);
+            saveLog();
+        }
 
         //remove workout function
+
+        //print function
+        void printWorkout(){
+            string userName;
+            cout << "Enter username to see your lifts: " << endl;
+            cin >> userName;
+
+            bool userFound = false;
+
+            for(WorkoutLog& workout : logs){
+                if(workout.userName == userName){
+                    cout << userName << "'s workouts: " << endl;
+                    cout << workout.date << " " << workout.exercise <<
+                    " sets:" << workout.sets << " reps: " << workout.reps <<endl;
+                    userFound = true;
+                    break;
+                }
+            }
+            if(!userFound){
+                cout << "User " << userName << " was not found" << endl;
+            }
+        }
 
         //pid is date 
         // if same date and same workout add to sets n reps accordingly
@@ -334,9 +371,12 @@ int main(){
         cout << "-----------------" << endl;
         cout << "(3) Remove user" << endl;
         cout << "-----------------" << endl;
-        cout << "(4) Exit" << endl;
+        cout << "(4) log workout" << endl;
         cout << "-----------------" << endl;
-
+        cout << "(5) See your workouts" << endl;
+        cout << "-----------------" << endl;
+        cout << "(6) Exit" << endl;
+        cout << "-----------------" << endl;
 
         cout << "\nENTER CHOICE: " << endl;
         cin >> choice;
@@ -345,18 +385,21 @@ int main(){
         if(choice == 1){
             fitnesstracker.addOrUpdateUsersFromInput(); //checks whether name is in file if it is you can modify your stats  if not new user is created
         }
-
         if(choice == 2){
             fitnesstracker.printUserInfo();  //asks for name you want the info of and itterates vector for that names data.
         }
-
         if(choice == 3){
             fitnesstracker.removeUser();  //remove certain user from the list
         }
+        if(choice == 4){
+            logworkout.addWorkout();
+        }
+        if(choice == 5){
+            logworkout.printWorkout();
+        }
+    } while(choice != 6);
 
-    } while(choice != 4);
 
-    
     return 0;
 }
 
