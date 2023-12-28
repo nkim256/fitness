@@ -248,7 +248,7 @@ class LogWorkout{
                 return;
             }
         
-            for(const WorkoutLog& workout : logs){ //itterate thru vector of users and send to output file to save
+            for(const WorkoutLog& workout : logs){ //itterate thru vector of Workouts and send to output file to save
                 workoutFile << workout.userName << " "
                 << workout.date << " "
                 << workout.exercise << " "
@@ -268,7 +268,7 @@ class LogWorkout{
 
             while(!workinFile.eof()){
                 WorkoutLog newWorkout;
-                //grab info from saved file "load users"
+                //grab info from saved file "load workouts"
                 workinFile >> newWorkout.userName >> newWorkout.exercise >> newWorkout.sets >> newWorkout.reps >> newWorkout.date;
 
                 if(!workinFile.fail()){
@@ -283,7 +283,7 @@ class LogWorkout{
             loadLog();
         }
 
-        //destructor to save users to file when program ends
+        //destructor to save workouts to file when program ends
         ~LogWorkout(){
             saveLog();
         }
