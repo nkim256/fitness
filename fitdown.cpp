@@ -11,16 +11,18 @@ struct WorkoutLog{
     string userName;
     string exercise;
     int sets;
-    int reps;
-    float weight;
+    vector<int> reps;
+    vector<int> weight;
     string date;
 };
+
 
 struct UserData{
     string userName;
     float userWeight;
     string userHeight;
     int userAge;
+
     int maxBench;
     int maxSquat;
     int maxDeadlift;
@@ -248,13 +250,18 @@ class LogWorkout{
                 return;
             }
         
-            for(const WorkoutLog& workout : logs){ //itterate thru vector of Workouts and send to output file to save
+            for(const WorkoutLog& workout : logs){ //itterate thru vector of workouts and send to output file to save
                 workoutFile << workout.userName << " "
                 << workout.date << " "
                 << workout.exercise << " "
-                << workout.sets << " "
-                << workout.reps << " "
-                << workout.weight << endl;
+                << workout.sets << " ";
+                for(const auto &r : workout.reps){
+                    workoutFile << r << " ";
+                }
+                for(const auto &w : workout.weight){
+                    workoutFile << w << " ";
+                }
+                workoutFile << endl;
             }
         }
 
@@ -268,8 +275,21 @@ class LogWorkout{
 
             while(!workinFile.eof()){
                 WorkoutLog newWorkout;
+                int repz;
+                int weightz;
                 //grab info from saved file "load workouts"
-                workinFile >> newWorkout.userName >> newWorkout.exercise >> newWorkout.sets >> newWorkout.reps >> newWorkout.date;
+                workinFile >> newWorkout.userName >> newWorkout.date >> newWorkout.exercise >> newWorkout.sets;
+                for(int i = 0; i < newWorkout.sets; i++){
+                    workinFile >> repz;
+                    newWorkout.reps.push_back(repz);
+                }
+
+                for(int i = 0; i < newWorkout.sets; i++){
+                    workinFile >> weightz;
+                    newWorkout.weight.push_back(weightz);
+                }
+                
+                //  workinFile >> newWorkout.date;
 
                 if(!workinFile.fail()){
                     logs.push_back(newWorkout);
@@ -289,10 +309,12 @@ class LogWorkout{
         }
 
         //addWorkout function
-        void addWorkout(){  //NEXT NEED TO BE ABLE TO ADD DIFFERENT REPS FOR EACH SET
+        void addWorkout(){
             string name, date, exercise;
-            int sets, reps;
-            float weight;
+            int sets, repz;
+            vector<int> reps;
+            vector<int> weights;
+            int weightz;
 
             cout << "Enter name: " << endl;
             cin >> name;
@@ -306,11 +328,24 @@ class LogWorkout{
             cout << "Enter number of sets: " << endl;
             cin >> sets;
 
-            cout << "Enter number of reps: " << endl;
-            cin >> reps;
+            for(int i = 1; i <= sets; i++){
+                cout << "Enter reps completed for set " << i << endl;
+                cin >> repz;
+                reps.push_back(repz);
 
-            cout << "Enter weight: " << endl;
-            cin >> weight;
+                cout << "Enter weight lifted for set " << i << endl;
+                cin >> weightz;
+                weights.push_back(weightz);
+                
+            }
+
+            // cout << "Enter number of reps: " << endl;
+            // cin >> reps;
+
+            
+
+            // cout << "Enter weight: " << endl;
+            // cin >> weight;
 
             WorkoutLog newWorkout;
             newWorkout.userName = name;
@@ -318,7 +353,7 @@ class LogWorkout{
             newWorkout.exercise = exercise;
             newWorkout.reps = reps;
             newWorkout.sets = sets;
-            newWorkout.weight = weight;
+            newWorkout.weight = weights;
 
             logs.push_back(newWorkout);
             saveLog();
@@ -337,9 +372,12 @@ class LogWorkout{
             for(WorkoutLog& workout : logs){
                 if(workout.userName == userName){
                     cout << userName << "'s workouts: " << endl;
-                    cout << workout.date << " " << workout.exercise <<
-                    " sets:" << workout.sets << " reps: " << workout.reps <<
-                    " weight: " << workout.weight << endl;
+                    cout << workout.date << ": " << workout.exercise;
+                    for(int i = 0; i < workout.sets; i++){
+                        cout << " set "<< i+1 << ": weight lifted: " << workout.weight[i] <<   " reps executed: " << workout.reps[i] << endl;
+                    }
+
+                    // cout << " weight: " << workout.weight << endl;
                     userFound = true;
                     break;
                 }
@@ -351,6 +389,8 @@ class LogWorkout{
 
         //pid is date 
         // if same date and same workout add to sets n reps accordingly
+            
+
 };
 
 
@@ -397,5 +437,20 @@ int main(){
         }
     } while(choice != 6);
 
+
     return 0;
 }
+
+//input name... if name already exists allows user to update stats
+                //if new name then new user is allocated and stats are logged
+
+
+//whenever returning user losses weight or PR'd a congratulations note will display
+
+
+//enter name to see your stats
+
+//remove user
+
+
+//ONE PROBLEM THE CONSOLE KEEPS GETTING PUSHED DOWN CAUSE SO MUCH TEXT. MAYBE EVEN HARD TO READ AFTER A COUPLE OF CHOICES
