@@ -1,11 +1,11 @@
-include<iostream>
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>
-    using namespace std;
+using namespace std;
 
 struct WorkoutLog
 {
