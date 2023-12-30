@@ -15,3 +15,9 @@ General Requirements
 	- Friends in groups are ranked by total volume by week, month, year
 	- MAYBE: Chat per friends group
 	
+
+# how to run
+should delete everything in the txt files cause the way data is read and sent might have been changed
+
+just click run and a menu will pop up go from there
+dont worry about erros such as negative numbers etc. that has not been accounted for yet.
