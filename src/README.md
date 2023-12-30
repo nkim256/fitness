@@ -16,7 +16,7 @@ General Requirements
 	- MAYBE: Chat per friends group
 	
 
-# how to run
+how to run:
 should delete everything in the txt files cause the way data is read and sent might have been changed
 
 just click run and a menu will pop up go from there
