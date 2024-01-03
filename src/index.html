@@ -1,21 +1,46 @@
+<!DOCTYPE html>
 <html>
 
 <head>
     <title>Elastic Beanstalk App for fitness</title>
+    <link rel="stylesheet" href="/static/style.css" />
 </head>
 
 <body>
-    <h1>Welcome to our demo</h1>
-    <a href="/about">about</a>
+    <h1>Workout Volume Tracker</h1>
+    <a href="/about">About Us</a>
     <form action="/searchUser" method="GET">
-        <input autofocus class="search-input" value="" placeholder="Enter a username" type="text" name="user" />
+        <input autofocus class="search-input" value="" placeholder="Enter Username to Retrieve Information" type="get"
+            name="user" />
         <input type="submit" />
     </form>
     <form action="/makeUser" method="POST">
-        <input autofocus class="search-input" value="" placeholder="Enter a username" type="text" name="user" />
-        <input autofocus class="search-input" value="" placeholder="Enter Name" type="text" name="name" />
-        <input autofocus class="search-input" value="" placeholder="Enter Heigh in inches" type="text" name="height" />
-        <input type="submit" />
+        <ul>
+            <li>
+                <input autofocus class="search-input" value="" placeholder="Enter a username" type="username"
+                    name="user" />
+            </li>
+            <li>
+                <input autofocus class="search-input" value="" placeholder="Enter First Name" type="realname"
+                    name="firstname" />
+            </li>
+            <li>
+                <input autofocus class="search-input" value="" placeholder="Enter Last Name" type="realname"
+                    name="lastname" />
+            </li>
+
+            <li>
+                <input autofocus class="search-input" value="" placeholder="Enter Height in inches" type="text"
+                    name="height" />
+            </li>
+            <li>
+                <input autofocus class="search-input" value="" placeholder="Enter Weight in lb" type="text"
+                    name="weight" />
+            </li>
+            <li>
+                <input type="submit" />
+            </li>
+        </ul>
     </form>
 </body>
 

@@ -26,7 +26,7 @@ func searchUser(w http.ResponseWriter, req *http.Request) {
 	qUser := req.URL.Query().Get("user")
 	serverPort := 3333
 	requestUrl := fmt.Sprintf("http://localhost:%d/user?user=%s", serverPort, qUser)
-	res, err := handleGetRequest(requestUrl)
+	res, err, _ := handleGetRequest(requestUrl)
 	if err != nil {
 		errCode := fmt.Sprintf("Could not get user : %s\n", err)
 		w.Write([]byte(errCode))
@@ -38,34 +38,46 @@ func searchUser(w http.ResponseWriter, req *http.Request) {
 func makeUser(w http.ResponseWriter, req *http.Request) {
 	qUser := req.PostFormValue("user")
 	if qUser == "" {
-		w.Header().Set("x-missing-field", "user")
-		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing user val"))
 		return
 	}
-	qName := req.PostFormValue("name")
-	if qName == "" {
-		w.Header().Set("x-missing-field", "name")
-		w.WriteHeader(http.StatusBadRequest)
+	qFirstName := req.PostFormValue("firstname")
+	if qFirstName == "" {
+		w.Write([]byte("Missing first name val"))
+		return
+	}
+	qLastName := req.PostFormValue("lastname")
+	if qLastName == "" {
+		w.Write([]byte("Missing last name val"))
 		return
 	}
 	qHeight := req.PostFormValue("height")
 	if qHeight == "" {
-		w.Header().Set("x-missing-field", "height")
-		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing height val"))
+		return
+	}
+	qWeight := req.PostFormValue("weight")
+	if qWeight == "" {
+		w.Write([]byte("Missing weight val"))
 		return
 	}
 	data := map[string]map[string]interface{}{}
 	data[qUser] = map[string]interface{}{}
-	data[qUser]["name"] = qName
 	data[qUser]["height"] = qHeight
+	data[qUser]["weight"] = qWeight
+	data[qUser]["firstName"] = qFirstName
+	data[qUser]["lastName"] = qLastName
+
 	serverPort := 3333
 	requestUrl := fmt.Sprintf("http://localhost:%d/user", serverPort)
-	err := handlePostRequest(requestUrl, data)
+	res, err, resCode := handlePostRequest(requestUrl, data)
 	if err != nil {
 		errCode := fmt.Sprintf("Could not get user : %s\n", err)
 		w.Write([]byte(errCode))
 		return
+	} else if resCode != 200 {
+		w.Write([]byte(res))
+		return
 	}
 	w.Write([]byte("Sucessful Post!"))
-
 }

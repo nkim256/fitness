@@ -9,3 +9,4 @@ cdk.out
 !src/*
 src/package-lock.json
 src/node_modules
+src/.env
