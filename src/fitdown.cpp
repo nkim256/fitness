@@ -38,7 +38,7 @@ class FitnessTracker{
             ofstream outFile(fileName);
 
             if(!outFile){
-                cout << "Error opening file" << endl;
+                cout << "Error opening file!" << endl;
                 return;
             }
 
