@@ -25,15 +25,15 @@ type fitnessUser struct {
 }
 
 var db *sql.DB
+cfg := mysql.Config{
+	User:   "root",
+	Passwd: "yesyesyes",
+	Net:    "tcp",
+	Addr:   "127.0.0.1:3306",
+	DBName: "fitness",
+}
 
 func main() {
-	cfg := mysql.Config{
-		User:   "root",
-		Passwd: "yesyesyes",
-		Net:    "tcp",
-		Addr:   "127.0.0.1:3306",
-		DBName: "fitness",
-	}
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
@@ -44,6 +44,7 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	restMux := http.NewServeMux()
 	restMux.HandleFunc("/user", user)
+	restMux.HandleFunc("/getWorkout", getWorkout)
 	pageMux := http.NewServeMux()
 	pageMux.Handle("/static/", http.StripPrefix("/static/", fs))
 	pageMux.HandleFunc("/", indexHandler)

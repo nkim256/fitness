@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func user(w http.ResponseWriter, req *http.Request) {
@@ -109,4 +110,58 @@ func postUser(w http.ResponseWriter, req *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 	}
+}
+
+func getWorkout(w http.ResponseWriter, req *http.Request) {
+	data 
+}
+
+func recordWorkout(userId string) bool, int{
+	if(userId==nil)
+	{
+		fmt.Printf("User does not exist")
+		return false, 0
+	}
+
+	
+
+
+
+
+}
+func recordExercise(workoutId int, workoutType string) bool{
+	if(workoutId==nil || workoutType==nil){
+		fmt.Printf("Bad Inputs")
+		return false
+	}
+	_, err := db.Exec("insert into exercises (id, workout_id, workout_type) values (0, ?,?)",
+		workoutId, workoutType)
+
+	if err!=nil{
+		fmt.Printf("Error inserting exercise: %s", err)
+		return false
+	}
+
+	fmt.Printf("Successful insert")
+	return true
+
+
+}
+
+func recordExcerciseSet(exerciseId int, weight int, reps int) bool{
+	if(exerciseId==nil){
+		return false
+	}
+	if(weight==nil || reps==nil || weight <=0 || reps <0){
+		return false
+	}
+	_, err := db.Exec("insert into exercise_sets (id, exercise_id, weight_amt, reps) values (0, ?, ?, ?)",
+		exerciseId, weight, reps)
+	if err!=nil{
+		fmt.Printf("Error inserting exercise setL %s\n", err)
+		return false
+	}
+
+	fmt.Printf("Successful insert")
+	return true
 }
