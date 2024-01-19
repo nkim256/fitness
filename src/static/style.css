@@ -1,0 +1,16 @@
+h1 {
+    text-align: center;
+}
+
+
+body {
+    color: #483D3F;
+    text-align: center;
+    font-size: 2.5em;
+    background-color: #CDC5B4;
+}
+
+a {
+    color: #483D3F;
+    text-decoration: none;
+}
