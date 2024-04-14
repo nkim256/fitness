@@ -1,0 +1,103 @@
+<!DOCTYPE htvml>
+<html>
+
+<head>
+    <title>Workout Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<h1>{{range.}} {{.ID}}{{end}}'s Workout Log</h1>
+<!-- <p id = "demo"> Logs</p> -->
+
+<body>
+    <table id="workout_table">
+    </table>
+</body>
+<button onclick="getWorkouts(2)"> Click</button>
+<script>
+    function getWorkouts(num) {
+        const req = new XMLHttpRequest();
+        var url = "http://localhost:3333/getWorkoutsMock";
+        req.open("GET", url);
+        req.send();
+        req.responseType = "json";
+        req.onload = () => {
+            if (req.readyState == 4 && req.status == 200) {
+                console.log(typeof req.response);
+                console.log(req.response);
+                workout = document.getElementById('workout_table');
+                //clear workout_list on refresh
+                workout.innerHTML = '';
+                const workout_categories = document.createElement("tr");
+                const workout_cat_id = document.createElement("th");
+                workout_cat_id.innerText = "Workout ID";
+                const workout_cat_date = document.createElement("th");
+                workout_cat_date.innerText = "Workout Date";
+                const workout_cat_user = document.createElement("th");
+                workout_cat_user.innerText = "Workout User";
+                workout_categories.appendChild(workout_cat_id);
+                workout_categories.appendChild(workout_cat_date);
+                workout_categories.appendChild(workout_cat_user);
+                workout.appendChild(workout_categories);
+                Object.entries(req.response).forEach(([key, value]) => {
+                    // <li>
+                    //     value
+                    // </li>
+                    const workout_inst = document.createElement("tr")
+                    workout_inst.id = key;
+                    const workout_name = document.createElement("td");
+                    const workout_date = document.createElement("td");
+                    const workout_user = document.createElement("td");
+                    workout_user.innerText = value["user_id"];
+                    workout_name.innerText = key;
+                    workout_date.innerText = value["workout_date"];
+                    workout_inst.appendChild(workout_name);
+                    workout_inst.appendChild(workout_date);
+                    workout_inst.appendChild(workout_user);
+                    workout.appendChild(workout_inst);
+                    console.log(`${key}: ${value}`);
+                });
+            }
+            else {
+                console.log('Error: ${req.status}');
+            }
+        }
+    }
+</script>
+
+
+</html>
+
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    body {
+        color: #E1D9D1;
+        font-family: "Roboto", Arial, Helvetica, sans-serif;
+        text-align: center;
+        font-size: 2.5em;
+        background-color: #262322;
+    }
+
+    table {
+        display: table;
+        border: solid white 1px;
+        border-radius: 6px;
+        color: #E1D9D1;
+        font-family: "Roboto";
+        margin: auto;
+        font-size: .75em;
+        background-color: #262322;
+    }
+
+    a {
+        color: #483D3F;
+        text-decoration: none;
+    }
+</style>

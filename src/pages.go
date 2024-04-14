@@ -81,3 +81,36 @@ func makeUser(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Write([]byte("Sucessful Post!"))
 }
+
+func functionalUser(w http.ResponseWriter, req *http.Request) {
+	fmt.Printf("getting called")
+	hasUser := req.URL.Query().Has("user")
+	if !hasUser {
+		w.Header().Set("x-missing-field", "user")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	qUser := req.URL.Query().Get("user")
+	//Should also be grabbing user info, but for now just request the workouts
+	qUserStruct := []FitnessUser{
+		{
+			ID: qUser,
+			FirstName: "Nathan",
+			LastName: "Kim",
+			Height: 72,
+			FtOrCm: 0,
+			Weight: 190,
+			LbOrKg: 0,
+		},
+	}
+
+	var tmplFile = "user.html"
+	tmpl := template.Must(template.ParseFiles(tmplFile))
+
+
+	err := tmpl.Execute(w, qUserStruct)
+	if err!=nil{
+		panic(err)
+	}
+}

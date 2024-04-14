@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Workout Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+</head>
+
+<h1>{{range.}} {{.FirstName}} {{.LastName}}{{end}}'s Workout Profile</h1>
+<!-- <p id = "demo"> Logs</p> -->
+
+<img src="static/almightloaf.webp">
+
+<body onload="pullProfileInfo()">
+    <table id="userStats">
+    </table>
+    </table>
+    <table id="workoutTable">
+    </table>
+</body>
+<button onclick="getWorkouts(10)"> Get my Workouts</button>
+<button onclick="openForm()"> Record my Workout</button>
+
+<div class="modal-popup" id="workoutForm">
+    <h1>Enter Workout</h1>
+    <form action="" class="form-container">
+        <div class="exercise-row">
+            <div class="col-25">
+                <input type="text" id="exercise-name" placeholder="Exercise Name">
+            </div>
+            <div class="col-75">
+                <input type="text" id="exercise-scheme" placeholder="Exercise Scheme">
+                <input type="text" id="exercise-scheme" placeholder="Exercise Scheme">
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Submit</button>
+        <button onclick="closeForm()">Cancel</button>
+    </form>
+</div>
+{{range.}}
+<script>
+    function createWorkout() {
+
+    }
+    function openForm() {
+        document.getElementById('workoutForm').style.display = "block";
+    }
+
+    function closeForm() {
+        document.getElementById('workoutForm').style.display = "none";
+    }
+    function pullProfileInfo() {
+        pullUserInfo();
+        pullStrengthInfo();
+    }
+    function pullUserInfo() {
+        //This function will pull general info about the profile
+        userTable = document.getElementById('userStats');
+        userTable.innerHTML = '';
+        const userGenCategories = document.createElement('tr');
+        const userHeight = document.createElement('th');
+        userHeight.innerText = "Height";
+        const userWeight = document.createElement('th');
+        userWeight.innerText = "Weight"
+        const userTotal = document.createElement('th');
+        userTotal.innerText = "Total";
+        userGenCategories.appendChild(userHeight);
+        userGenCategories.appendChild(userWeight);
+        userGenCategories.appendChild(userTotal);
+        userTable.appendChild(userGenCategories);
+
+        const userInfo = document.createElement('tr');
+        const userHeightx = document.createElement('td');
+        userHeightx.innerText = "{{.Height}} in";
+        const userWeightx = document.createElement('td');
+        userWeightx.innerText = "{{.Weight}} lbs";
+        const userTotalx = document.createElement('td');
+        userTotalx.innerText = '1085 lbs';
+        userInfo.appendChild(userHeightx);
+        userInfo.appendChild(userWeightx);
+        userInfo.appendChild(userTotalx);
+        userTable.appendChild(userInfo);
+    }
+
+    function pullStrengthInfo() {
+        userTable = document.getElementById('userStats');
+        const userStrengthCategories = document.createElement('tr');
+        const maxSquat = document.createElement('th');
+        maxSquat.innerText = "Max Squat";
+        const maxBench = document.createElement('th');
+        maxBench.innerText = "Max Bench";
+        const maxDeadlift = document.createElement('th');
+        maxDeadlift.innerText = "Max Deadlift";
+        userStrengthCategories.appendChild(maxSquat);
+        userStrengthCategories.appendChild(maxBench);
+        userStrengthCategories.appendChild(maxDeadlift);
+        userTable.appendChild(userStrengthCategories);
+
+        const userStrength = document.createElement('tr');
+        const userSquat = document.createElement('td');
+        userSquat.innerText = "365";
+        const userBench = document.createElement('td');
+        userBench.innerText = '265';
+        const userDeadlift = document.createElement('td');
+        userDeadlift.innerText = "455";
+        userStrength.appendChild(userSquat);
+        userStrength.appendChild(userBench);
+        userStrength.appendChild(userDeadlift);
+        userTable.appendChild(userStrength);
+
+
+
+    }
+    function recordWorkout() {
+        const req = new XMLHttpRequest();
+        var url = "http://localhost:3333/recordWorkout?user={{.ID}}";
+        req.open("GET", url);
+        req.send()
+    }
+    function getWorkouts(num) {
+        const req = new XMLHttpRequest();
+        var url = "http://localhost:3333/getUserWorkouts?user={{.ID}}&numQuery=" + num.toString();
+        req.open("GET", url);
+        req.send();
+        req.responseType = "json";
+        req.onload = () => {
+            console.log(req.status)
+            if (req.readyState == 4 && req.status == 200) {
+                console.log(typeof req.response);
+                console.log(req.response);
+                workout = document.getElementById('workoutTable');
+                //clear workout_list on refresh
+                workout.innerHTML = '';
+                const workout_categories = document.createElement("tr");
+                const workout_cat_id = document.createElement("th");
+                workout_cat_id.innerText = "Workout ID";
+                const workout_cat_date = document.createElement("th");
+                workout_cat_date.innerText = "Workout Date";
+                const workout_cat_user = document.createElement("th");
+                workout_cat_user.innerText = "Workout User";
+                workout_categories.appendChild(workout_cat_id);
+                workout_categories.appendChild(workout_cat_date);
+                workout_categories.appendChild(workout_cat_user);
+                workout.appendChild(workout_categories);
+                Object.entries(req.response).forEach(([key, value]) => {
+                    // <li>
+                    //     value
+                    // </li>
+                    console.log(key);
+                    const workout_inst = document.createElement("tr")
+                    workout_inst.ID = value['ID'];
+                    const workout_name = document.createElement("td");
+                    const workout_date = document.createElement("td");
+                    const workout_user = document.createElement("td");
+                    workout_user.innerText = value["UserID"];
+                    workout_name.innerText = value['ID'];
+                    workout_date.innerText = value["WorkoutDate"];
+                    workout_inst.appendChild(workout_name);
+                    workout_inst.appendChild(workout_date);
+                    workout_inst.appendChild(workout_user);
+                    workout.appendChild(workout_inst);
+                    console.log(`${key}: ${value}`);
+                });
+            }
+            else {
+                console.log('Error: ${req.status}');
+            }
+        }
+    }
+</script>
+{{end}}
+
+
+</html>
+
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    img {
+        border-radius: 4px;
+        width: 15%;
+    }
+
+    body {
+        color: #E1D9D1;
+        font-family: "Roboto", Arial, Helvetica, sans-serif;
+        text-align: center;
+        font-size: 2.0em;
+        background-color: #262322;
+    }
+
+    /* body {
+        background-color: #1E1E1E;
+        color: #FFFFFF;
+        font-family: 'Montserrat';
+        text-align: center;
+        font-size: 2.5 em;
+    } */
+
+    table {
+        display: table;
+        border: solid white 1px;
+        border-radius: 6px;
+        color: #E1D9D1;
+        font-family: "Roboto";
+        margin: auto;
+        font-size: .75em;
+        background-color: #262322;
+    }
+
+    a {
+        color: #483D3F;
+        text-decoration: none;
+    }
+
+    .modal-popup {
+        display: none;
+        position: fixed;
+        text-align: center;
+        border: 3px solid #f1f1f1;
+        bottom: 500px;
+        right: 300px;
+        z-index: 9;
+    }
+
+    .form-container {
+        background-color: #111111
+    }
+
+    .col-25 {
+        float: left;
+        width: 25%;
+        margin-top: 3px;
+    }
+
+    .col-75 {
+        float: right;
+        width: 25%;
+        margin-top: 3px;
+    }
+</style>

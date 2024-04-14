@@ -14,7 +14,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-type fitnessUser struct {
+type FitnessUser struct {
 	ID        string
 	FirstName string
 	LastName  string
@@ -24,16 +24,22 @@ type fitnessUser struct {
 	LbOrKg    int
 }
 
-var db *sql.DB
-cfg := mysql.Config{
-	User:   "root",
-	Passwd: "yesyesyes",
-	Net:    "tcp",
-	Addr:   "127.0.0.1:3306",
-	DBName: "fitness",
+type Workout struct {
+	ID string
+	UserID string
+	WorkoutDate string
 }
 
+var db *sql.DB
+
 func main() {
+	cfg := mysql.Config{
+		User:   "root",
+		Passwd: "yesyesyes",
+		Net:    "tcp",
+		Addr:   "127.0.0.1:3306",
+		DBName: "fitness",
+	}
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
@@ -44,10 +50,13 @@ func main() {
 	fs := http.FileServer(http.Dir("static"))
 	restMux := http.NewServeMux()
 	restMux.HandleFunc("/user", user)
-	restMux.HandleFunc("/getWorkout", getWorkout)
+	restMux.HandleFunc("/getUserWorkouts", getUserWorkouts)
+	restMux.HandleFunc("/getWorkoutsMock", getWorkoutsMock)
+	restMux.HandleFunc("/recordWorkout", recordWorkout)
 	pageMux := http.NewServeMux()
 	pageMux.Handle("/static/", http.StripPrefix("/static/", fs))
 	pageMux.HandleFunc("/", indexHandler)
+	pageMux.HandleFunc("/user", functionalUser)
 	pageMux.HandleFunc("/searchUser", searchUser)
 	pageMux.HandleFunc("/about", about)
 	pageMux.HandleFunc("/makeUser", makeUser)

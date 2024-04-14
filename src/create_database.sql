@@ -12,30 +12,28 @@ CREATE TABLE users (
 
 DROP TABLE if exists workouts;
 create table workouts (
-    id INT unsigned not null AUTO_INCREMENT,
-    user_id VARCHAR(128) not null,
+    id varchar(128) not null,
+    user_id varchar(128) not null,
     workout_date varchar(128) not null,
     PRIMARY KEY (id)
 );
 
---Randomly Assign id to a workout, wokrout will contain USER ID to show
+-- Randomly Assign id to a workout, wokrout will contain USER ID to show
 -- who is doing workout, and date for tracking purposes
 -- Further Sets will all include this workout ID to associate workouts
 DROP TABLE if exists exercises;
 create table exercises (
-    id INT unsigned not null AUTO_INCREMENT,
-    workout_id INT unsigned not null,
+    id varchar(128) not null,
+    workout_id varchar(128) not null,
     workout_type varchar(128),
     PRIMARY KEY (id)
 );
 
 DROP TABLE if exists exercise_sets;
 create table exercise_sets (
-    id INT unsigned not null AUTO_INCREMENT,
-    exercise_id INT unsigned not null,
-    weight_amt INT unsigned NOT NULL,
-    reps INT unsigned NOT NULL
-    PRIMARY KEY (id)
+    id varchar(128) not null,
+    exercise_id varchar(128) not null,
+    weight_amt INT unsigned NOT NULL
 );
 INSERT INTO users
 (id, first_name, last_name, height,
@@ -49,16 +47,16 @@ VALUES
 insert into workouts
 (id, user_id, workout_date)
 VALUES
-(0, "nkim256", "1-1-24");
+("nkim256_1", "nkim256", "1-1-24");
 
 
 insert into exercises
 (id, workout_id, workout_type)
 VALUES
-(0, "nkim256_1", "Bench Press");
+("123", "nkim256_1", "Bench Press");
 
 
 INSERT INTO exercise_sets
-(id, exercise_id, weight_amt, reps)
+(id, exercise_id, weight_amt)
 VALUES
-(0, "123", 225, 5);
+("321", "123", 225);
