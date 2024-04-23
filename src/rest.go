@@ -121,17 +121,16 @@ func getWorkoutsMock(w http.ResponseWriter, req *http.Request) {
 	data["workout_2"]["user_id"] = "nkim256"
 	data["workout_2"]["workout_date"] = "1-2-24"
 	jsonData, err := json.Marshal(data)
-	if err!=nil{
+	if err != nil {
 		fmt.Printf("Error making JSon: %s\n", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(jsonData))
-	
+	fmt.Fprint(w, string(jsonData))
+
 }
 
-func getUserWorkouts(w http.ResponseWriter, req *http.Request){
-	fmt.Printf("Called getUserWorkouts")
+func getUserWorkouts(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	hasUser := req.URL.Query().Has("user")
 	if !hasUser {
@@ -142,113 +141,186 @@ func getUserWorkouts(w http.ResponseWriter, req *http.Request){
 
 	hasQuery := req.URL.Query().Has("numQuery")
 	if !hasQuery {
-		w.Header().Set("x-missing-field", "user")
+		w.Header().Set("x-missing-field", "numQuery")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	user := req.URL.Query().Get("user")
 	numQuery, err := strconv.Atoi(req.URL.Query().Get("numQuery"))
-	if err!=nil{
+	if err != nil {
 		fmt.Printf("numQuery was not an Int")
 		return
 	}
 
 	rows, err := db.Query("select * from workouts where user_id=? order by workout_date desc", user)
-	var workoutLog []Workout	
+
+	if err != nil {
+		fmt.Printf("Error querying from DB: %s\n", err)
+	}
+	var workoutLog []Workout
 	for rows.Next() {
-		if numQuery ==0 {
+		if numQuery == 0 {
 			break
 		}
 		var workoutInst Workout
-		err = rows.Scan(&workoutInst.ID, &workoutInst.UserID, &workoutInst.WorkoutDate)
-		if err!=nil{
-			fmt.Printf("Error retrieving row: %s" , err)
-				return
+		err = rows.Scan(
+			&workoutInst.ID,
+			&workoutInst.WorkoutName,
+			&workoutInst.UserID,
+			&workoutInst.WorkoutDate)
+
+		if err != nil {
+			fmt.Printf("Error retrieving row: %s", err)
+			return
 		}
-		numQuery -=1
-		workoutLog = append(workoutLog, workoutInst)	
+		fmt.Printf("workoutInst: %s, workoutDate: %s\n", workoutInst.ID, workoutInst.WorkoutDate)
+		numQuery -= 1
+		workoutLog = append(workoutLog, workoutInst)
 	}
 
 	marshalData, err := json.Marshal(workoutLog)
-	fmt.Printf(string(marshalData))
-	fmt.Fprintf(w, string(marshalData))
+	if err != nil {
+		fmt.Printf("Error marshalling log: %s", err)
+	}
+	fmt.Print(string(marshalData))
+	fmt.Printf("\n")
+	fmt.Fprint(w, string(marshalData))
 
-	
 }
 
-func recordWorkout(w http.ResponseWriter, req *http.Request){
+func getUserWorkoutDetail(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	hasUser := req.URL.Query().Has("user")
+	if !hasUser {
+		w.Header().Set("x-missing-field", "user")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	hasQuery := req.URL.Query().Has("workoutID")
+	if !hasQuery {
+		w.Header().Set("x-missing-field", "workoutID")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	workoutID, err := strconv.Atoi(req.URL.Query().Get("workoutID"))
+	if err != nil {
+		fmt.Printf("Fn getUserWorkoutsDetail: workoutID was not an Int")
+		return
+	}
+	rows, err := db.Query("select * from exercise_sets where workout_id=?", workoutID)
+
+	if err != nil {
+		fmt.Printf("Fn getUserWorkoutsDetail: Error querying from DB: %s\n", err)
+	}
+
+	var setLog []Set
+	for rows.Next() {
+		var setInst Set
+		err = rows.Scan(&setInst.ID,
+			&setInst.WorkoutType,
+			&setInst.WorkoutID,
+			&setInst.WeightAmt,
+			&setInst.Reps)
+		if err != nil {
+			fmt.Printf("Error retrieving row: %s", err)
+			return
+		}
+		setLog = append(setLog, setInst)
+	}
+	marshalData, err := json.Marshal(setLog)
+	if err != nil {
+		fmt.Printf("Error marshalling log: %s", err)
+	}
+	fmt.Print(string(marshalData))
+	fmt.Printf("\n")
+	fmt.Fprint(w, string(marshalData))
+}
+
+func recordWorkout(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("called recordWorkout\n")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	hasUser := req.URL.Query().Has("user")
-	if !hasUser{
+	if !hasUser {
 		fmt.Printf("No user found")
 		w.Header().Set("x-missing-field", "user")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	user := req.URL.Query().Get("user")
-	recordWorkoutUser(user)
 
+	data := map[string]map[string]string{}
+	err := json.NewDecoder(req.Body).Decode(&data)
+	if err != nil {
+		fmt.Printf("Error Decoding: %s", err)
+		return
+	}
+	user := req.URL.Query().Get("user")
+	isSuccessful, workout_id := recordWorkoutUser(user, data["name"]["name"])
+	fmt.Printf("%s\n", data["name"]["name"])
+	if !isSuccessful {
+		fmt.Printf("Error during fn recordWorkoutUser\n")
+	}
+	fmt.Printf("%d\n", workout_id)
+	for key := range data {
+		if key == "name" {
+			continue
+		}
+		setRow := data[key]
+		workoutWeight, err := strconv.Atoi(setRow["workoutWeight"])
+		if err != nil {
+			fmt.Printf("Error Converting Workout Weight: %s\n", err)
+			return
+		}
+		workoutReps, err := strconv.Atoi(setRow["workoutReps"])
+		if err != nil {
+			fmt.Printf("Error Converting Reps to int: %s\n", err)
+		}
+
+		isSuccessful := recordSet(
+			setRow["workoutType"],
+			workout_id,
+			workoutWeight,
+			workoutReps)
+		if !isSuccessful {
+			fmt.Printf("Fn RecordSet was not completed succesfully\n")
+		}
+	}
+	fmt.Printf("Fn recordWorkout: Succesful insert of workout")
 }
-func recordWorkoutUser(userId string) (bool, int64){
+
+func recordWorkoutUser(userId string, workoutName string) (bool, int64) {
 	fmt.Printf("Calling record workout for: %s\n", userId)
-	if(userId==""){
+	if userId == "" {
 		fmt.Printf("userId was a null value\n")
-		return false, -1		
+		return false, -1
 	}
 	currTime := time.Now()
-    workout_date := fmt.Sprintf("%d-%d-%d %d:%d:%d",
-								currTime.Year(),
-								currTime.Month(),
-								currTime.Day(),
-								currTime.Hour(),
-								currTime.Minute(),
-								currTime.Second())
-	res , err := db.Exec("insert into workouts (id, user_id, workout_date) values (0, ?, ?)",
-		userId, workout_date)
-	if err!= nil{
+	workout_date := currTime.String()
+	res, err := db.Exec("insert into workouts (id, workout_name, user_id, workout_date) values (0, ?, ?, ?)",
+		workoutName, userId, workout_date)
+	if err != nil {
 		fmt.Printf("Error inserting workout: %s\n", err)
 		return false, -1
 	}
 	id, err := res.LastInsertId()
-	if err!=nil{
+	if err != nil {
 		fmt.Printf("Error retrieving ID: %s\n", err)
 		return false, -1
 	}
-	fmt.Printf("Workout ID: %d\n", id)
-	fmt.Printf("Successful insert of workout\n")
+	fmt.Printf("Fn recordWorkoutUser: Successful insert of workout\n")
 	return true, id
 }
-func recordExercise(workoutId int, workoutType string) bool{
-	if(workoutType==""){
-		fmt.Printf("Bad Inputs\n")
+
+func recordSet(workoutType string, workoutId int64, weight int, reps int) bool {
+	if weight <= 0 || reps < 0 {
 		return false
 	}
-	_, err := db.Exec("insert into exercises (id, workout_id, workout_type) values (0, ?,?)",
-		workoutId, workoutType)
-
-	if err!=nil{
-		fmt.Printf("Error inserting exercise: %s\n", err)
-		return false
-	}
-
-	fmt.Printf("Successful insert\n")
-	return true
-
-
-}
-
-func recordExcerciseSet(exerciseId int, weight int, reps int) bool{
-	if(weight <=0 || reps <0){
-		return false
-	}
-	_, err := db.Exec("insert into exercise_sets (id, exercise_id, weight_amt, reps) values (0, ?, ?, ?)",
-		exerciseId, weight, reps)
-	if err!=nil{
-		fmt.Printf("Error inserting exercise setL %s\n", err)
+	_, err := db.Exec("insert into exercise_sets (id, workout_type, workout_id, weight_amt, reps) values (0, ?, ?, ?, ?)",
+		workoutType, workoutId, weight, reps)
+	if err != nil {
+		fmt.Printf("Error inserting exercise set: %s\n", err)
 		return false
 	}
 
-	fmt.Printf("Successful insert\n")
+	fmt.Printf("Fn recordSet: Successful insert of Set\n")
 	return true
 }

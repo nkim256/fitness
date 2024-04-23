@@ -5,9 +5,7 @@
     <title>Workout Page</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 </head>
 
 <h1>{{range.}} {{.FirstName}} {{.LastName}}{{end}}'s Workout Profile</h1>
@@ -15,7 +13,7 @@
 
 <img src="static/almightloaf.webp">
 
-<body onload="pullProfileInfo()">
+<body onload="pullProfileInfo()" class =>
     <table id="userStats">
     </table>
     </table>
@@ -23,41 +21,131 @@
     </table>
 </body>
 <button onclick="getWorkouts(10)"> Get my Workouts</button>
-<button onclick="openForm()"> Record my Workout</button>
+<button onclick="recordWorkout()">Record</button>
+<!-- <button onclick="openForm()"> Record my Workout</button> -->
 
-<div class="modal-popup" id="workoutForm">
-    <h1>Enter Workout</h1>
-    <form action="" class="form-container">
-        <div class="exercise-row">
-            <div class="col-25">
-                <input type="text" id="exercise-name" placeholder="Exercise Name">
-            </div>
-            <div class="col-75">
-                <input type="text" id="exercise-scheme" placeholder="Exercise Scheme">
-                <input type="text" id="exercise-scheme" placeholder="Exercise Scheme">
-            </div>
-        </div>
+<div class="setContainer" id="workoutDetail">
 
-        <button type="submit" class="btn">Submit</button>
-        <button onclick="closeForm()">Cancel</button>
-    </form>
 </div>
+
+<div id="insertWorkoutCont">
+    <h1>Insert Workout Area</h1>
+    <input type="workoutName" id="workout-name" placeholder = "Workout Name"/>
+    <div id="insertWorkoutDiv">
+    </div>
+    <button onclick="addWorkout()">Add Exercise</button>
+    <button onclick="recordWorkout()">Record Workout</button>
+</div>
+
 {{range.}}
 <script>
-    function createWorkout() {
-
+    function deleteRow(parentElement){
+        parentElement.remove();
     }
+    function recordWorkout() {
+        const req = new XMLHttpRequest();
+        var url = "http://localhost:3333/recordWorkout?user={{.ID}}";
+
+        var workouts = document.getElementById("insertWorkoutDiv");
+        var setRows = workouts.children;
+        var sets = {};
+        var workoutName = document.getElementById("workout-name");
+        sets["name"] = {
+            "name": workoutName.value
+        };
+
+        for(var i = 0; i< setRows.length; i++) {
+            var setIterator = setRows[i];
+            info = {
+                "workoutType": setIterator.children[0].value,
+                "workoutWeight": setIterator.children[1].value,
+                "workoutReps": setIterator.children[2].value, 
+            }
+            sets[i] = info;
+        }
+        console.log(JSON.stringify(sets)) 
+        req.open("POST", url);
+        req.send(JSON.stringify(sets));
+        workouts.innerHTML = "";
+        workoutName.value = "";
+    }
+
+    function addWorkout() {
+        const workoutDiv = document.getElementById("insertWorkoutDiv");
+
+        const newExerciseRow = document.createElement("div");
+        
+        const workoutInput = document.createElement("input");
+        workoutInput.setAttribute("placeholder", "Enter Workout");
+        workoutInput.type = "exercise";
+        
+        const weightInput = document.createElement("input");
+        weightInput.setAttribute("placeholder", "Enter Weight");
+        weightInput.type = "weight";
+        
+        const repInput = document.createElement("input");
+        repInput.setAttribute("placeholder", "Enter Reps");
+        repInput.type = "reps";
+
+        const rowDelete = document.createElement("button");
+        rowDelete.setAttribute("onclick", `deleteRow(this.parentElement)`);
+        rowDelete.innerText = "Delete Row";
+
+        newExerciseRow.appendChild(workoutInput);
+        newExerciseRow.appendChild(weightInput);
+        newExerciseRow.appendChild(repInput);
+        newExerciseRow.appendChild(rowDelete);
+
+        workoutDiv.appendChild(newExerciseRow);
+    }
+
+    function createWorkoutContainer() {
+        const workoutDiv = document.getElementById("insertWorkoutDiv");
+
+        const newExerciseRow = document.createElement("div");
+        newExerciseRow.className= "setContainer";
+
+        const workoutNameCol = document.createElement("div");
+        workoutNameCol.type = "exercise";
+        workoutNameCol.className = "col-25";
+        workoutNameCol.ID = "exerciseCol";
+
+        const workoutSetCol = document.createElement("div");
+        workoutSetCol.type = "set";
+        workoutSetCol.className = "col-75";
+
+        const workoutInput = document.createElement("input");
+        workoutInput.type = "exercise";
+
+        const workoutSet = document.createElement("input");
+        workoutSet.type = "set";
+
+        const workoutSet2 = document.createElement("input");
+        workoutSet2.type = "set";
+
+        workoutNameCol.appendChild(workoutInput);
+        workoutSetCol.appendChild(workoutSet);
+        workoutSetCol.appendChild(workoutSet2);
+        newExerciseRow.appendChild(workoutNameCol);
+        newExerciseRow.appendChild(workoutSetCol);
+        workoutDiv.appendChild(newExerciseRow);
+    }
+
     function openForm() {
-        document.getElementById('workoutForm').style.display = "block";
+        console.log("Hello");
+        document.getElementById('workoutDetail').style.display = "block";
     }
 
     function closeForm() {
-        document.getElementById('workoutForm').style.display = "none";
+        document.getElementById('workoutDetail').innerHTML = "";
+        document.getElementById('workoutDetail').style.display = "none";
     }
+
     function pullProfileInfo() {
         pullUserInfo();
         pullStrengthInfo();
     }
+    
     function pullUserInfo() {
         //This function will pull general info about the profile
         userTable = document.getElementById('userStats');
@@ -112,15 +200,69 @@
         userStrength.appendChild(userBench);
         userStrength.appendChild(userDeadlift);
         userTable.appendChild(userStrength);
-
-
-
     }
-    function recordWorkout() {
+
+    function getWorkoutDetail(workoutID) {
+        openForm();
+        console.log(workoutID);
+        console.log("\n");
         const req = new XMLHttpRequest();
-        var url = "http://localhost:3333/recordWorkout?user={{.ID}}";
+        var url = "http://localhost:3333/getUserWorkoutDetail?user={{.ID}}&workoutID=" + workoutID.toString();
         req.open("GET", url);
-        req.send()
+        req.send();
+        req.responseType = "json";
+        req.onload = () => {
+            console.log(req.status)
+            if(req.readyState == 4 && req.status == 200) {
+                workoutWindow = document.getElementById('workoutDetail');
+                workoutWindow.innerHTML = '';
+                var workoutTable = document.createElement("table");
+
+                var cancelButton = document.createElement("button");
+                cancelButton.innerText = "cancel";
+                cancelButton.setAttribute("onclick", "closeForm()");
+                cancelButton.setAttribute("class", "setContainerButton");
+
+                var tableCategories = document.createElement("tr");
+                var exerciseType = document.createElement("th");
+                exerciseType.innerText = "Exercise";
+
+                var exerciseWeight = document.createElement("th");
+                exerciseWeight.innerText = "Weight";
+
+                var exerciseReps = document.createElement("th");
+                exerciseReps.innerText = "Reps";
+
+                tableCategories.appendChild(exerciseType);
+                tableCategories.appendChild(exerciseWeight);
+                tableCategories.appendChild(exerciseReps);
+
+                workoutTable.appendChild(tableCategories);
+
+
+                Object.entries(req.response).forEach(([key,value]) => {
+                    console.log(key);
+                    var exerciseSet = document.createElement("tr");
+
+                    var exercise = document.createElement("td");
+                    var exerciseWeight = document.createElement("td");
+                    var exerciseReps = document.createElement("td");
+
+                    exercise.innerText = value["WorkoutType"];
+                    exerciseWeight.innerText = value["WeightAmt"];
+                    exerciseReps.innerText = value["Reps"];
+
+                    exerciseSet.appendChild(exercise);
+                    exerciseSet.appendChild(exerciseWeight);
+                    exerciseSet.appendChild(exerciseReps);
+
+                    workoutTable.appendChild(exerciseSet);
+                });
+
+                workoutWindow.appendChild(workoutTable);
+                workoutWindow.appendChild(cancelButton);
+            }
+        }
     }
     function getWorkouts(num) {
         const req = new XMLHttpRequest();
@@ -138,7 +280,7 @@
                 workout.innerHTML = '';
                 const workout_categories = document.createElement("tr");
                 const workout_cat_id = document.createElement("th");
-                workout_cat_id.innerText = "Workout ID";
+                workout_cat_id.innerText = "Workout Name";
                 const workout_cat_date = document.createElement("th");
                 workout_cat_date.innerText = "Workout Date";
                 const workout_cat_user = document.createElement("th");
@@ -148,21 +290,26 @@
                 workout_categories.appendChild(workout_cat_user);
                 workout.appendChild(workout_categories);
                 Object.entries(req.response).forEach(([key, value]) => {
-                    // <li>
-                    //     value
-                    // </li>
+
                     console.log(key);
                     const workout_inst = document.createElement("tr")
                     workout_inst.ID = value['ID'];
                     const workout_name = document.createElement("td");
                     const workout_date = document.createElement("td");
                     const workout_user = document.createElement("td");
+                    const workout_submit = document.createElement("button");
+
+                    workout_submit.innerText="Details";
+                    workout_submit.setAttribute("onclick", `getWorkoutDetail(${value['ID']})`);
+
                     workout_user.innerText = value["UserID"];
-                    workout_name.innerText = value['ID'];
-                    workout_date.innerText = value["WorkoutDate"];
+                    workout_name.innerText = value['WorkoutName'];
+                    const date = value["WorkoutDate"].split(" ");
+                    workout_date.innerText = date[0];
                     workout_inst.appendChild(workout_name);
                     workout_inst.appendChild(workout_date);
                     workout_inst.appendChild(workout_user);
+                    workout_inst.appendChild(workout_submit);
                     workout.appendChild(workout_inst);
                     console.log(`${key}: ${value}`);
                 });
@@ -190,10 +337,10 @@
 
     body {
         color: #E1D9D1;
-        font-family: "Roboto", Arial, Helvetica, sans-serif;
+        font-family: "Anonymous Pro", Arial, Helvetica, sans-serif;
         text-align: center;
         font-size: 2.0em;
-        background-color: #262322;
+        background-color: #111111;
     }
 
     /* body {
@@ -209,10 +356,10 @@
         border: solid white 1px;
         border-radius: 6px;
         color: #E1D9D1;
-        font-family: "Roboto";
+        font-family: "Anonymous Pro";
         margin: auto;
         font-size: .75em;
-        background-color: #262322;
+        background-color: #111111;
     }
 
     a {
@@ -221,7 +368,6 @@
     }
 
     .modal-popup {
-        display: none;
         position: fixed;
         text-align: center;
         border: 3px solid #f1f1f1;
@@ -236,13 +382,45 @@
 
     .col-25 {
         float: left;
+
         width: 25%;
-        margin-top: 3px;
+        height: 50%;
+        text-align: center;
     }
 
     .col-75 {
+        /* -webkit-column-count: 1;
+        -moz-column-count: 1;
+        column-count: 1; */
         float: right;
         width: 25%;
         margin-top: 3px;
+        text-align: center;
+    }
+
+    .setContainer {
+        display: none;
+        position: absolute;
+        border: solid white 1px;
+        border-radius: 6px;
+        z-index: 9;
+        width: 500px;
+        height: 300px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        top: 50%;
+        margin-top: -100px;
+        color: #E1D9D1;
+        font-family: "Anonymous Pro";
+        text-align: center;
+        font-size: .5em;
+        background-color: #111111;
+    }
+
+    .setContainerButton {
+        position: absolute;
+        top: 90%;
+        left: 50%;
+        transform: translate(-50%, 0);
     }
 </style>

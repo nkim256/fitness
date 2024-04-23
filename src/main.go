@@ -25,17 +25,27 @@ type FitnessUser struct {
 }
 
 type Workout struct {
-	ID string
-	UserID string
+	ID          string
+	WorkoutName string
+	UserID      string
 	WorkoutDate string
+}
+
+type Set struct {
+	ID          string
+	WorkoutType string
+	WorkoutID   string
+	WeightAmt   string
+	Reps        string
 }
 
 var db *sql.DB
 
 func main() {
+	fmt.Printf("Hello\n")
 	cfg := mysql.Config{
 		User:   "root",
-		Passwd: "yesyesyes",
+		Passwd: "",
 		Net:    "tcp",
 		Addr:   "127.0.0.1:3306",
 		DBName: "fitness",
@@ -47,12 +57,16 @@ func main() {
 		return
 	}
 
+	defer db.Close()
+	fmt.Printf("Made it through\n")
+
 	fs := http.FileServer(http.Dir("static"))
 	restMux := http.NewServeMux()
 	restMux.HandleFunc("/user", user)
 	restMux.HandleFunc("/getUserWorkouts", getUserWorkouts)
 	restMux.HandleFunc("/getWorkoutsMock", getWorkoutsMock)
 	restMux.HandleFunc("/recordWorkout", recordWorkout)
+	restMux.HandleFunc("/getUserWorkoutDetail", getUserWorkoutDetail)
 	pageMux := http.NewServeMux()
 	pageMux.Handle("/static/", http.StripPrefix("/static/", fs))
 	pageMux.HandleFunc("/", indexHandler)

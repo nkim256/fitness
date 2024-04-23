@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS fitness;
+USE fitness;
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id VARCHAR(128) NOT NULL,
@@ -12,7 +14,8 @@ CREATE TABLE users (
 
 DROP TABLE if exists workouts;
 create table workouts (
-    id varchar(128) not null,
+    id INT unsigned not null AUTO_INCREMENT,
+    workout_name varchar(128),
     user_id varchar(128) not null,
     workout_date varchar(128) not null,
     PRIMARY KEY (id)
@@ -23,17 +26,19 @@ create table workouts (
 -- Further Sets will all include this workout ID to associate workouts
 DROP TABLE if exists exercises;
 create table exercises (
-    id varchar(128) not null,
-    workout_id varchar(128) not null,
+    id INT unsigned not null AUTO_INCREMENT,
     workout_type varchar(128),
     PRIMARY KEY (id)
 );
 
 DROP TABLE if exists exercise_sets;
 create table exercise_sets (
-    id varchar(128) not null,
-    exercise_id varchar(128) not null,
-    weight_amt INT unsigned NOT NULL
+    id INT unsigned not null AUTO_INCREMENT,
+    workout_type varchar(128),
+    workout_id INT unsigned not null,
+    weight_amt INT unsigned NOT NULL,
+    reps INT unsigned NOT NULL,
+    PRIMARY KEY (id)
 );
 INSERT INTO users
 (id, first_name, last_name, height,
@@ -44,19 +49,19 @@ VALUES
 ('nickdraggy', 'Nicholas', 'Kim', 69, 0, 165, 0);
 
 
-insert into workouts
-(id, user_id, workout_date)
-VALUES
-("nkim256_1", "nkim256", "1-1-24");
+-- insert into workouts
+-- (id, user_id, workout_date)
+-- VALUES
+-- ("nkim256_1", "nkim256", "1-1-24");
 
 
-insert into exercises
-(id, workout_id, workout_type)
-VALUES
-("123", "nkim256_1", "Bench Press");
+-- insert into exercises
+-- (id, workout_id, workout_type)
+-- VALUES
+-- ("123", "nkim256_1", "Bench Press");
 
 
-INSERT INTO exercise_sets
-(id, exercise_id, weight_amt)
-VALUES
-("321", "123", 225);
+-- INSERT INTO exercise_sets
+-- (id, exercise_id, weight_amt)
+-- VALUES
+-- ("321", "123", 225);
