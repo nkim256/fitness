@@ -2,16 +2,131 @@ h1 {
     text-align: center;
 }
 
+img {
+    border-radius: 4px;
+    width: 15%;
+}
 
 body {
     color: #E1D9D1;
-
+    font-family: "Anonymous Pro", Arial, Helvetica, sans-serif;
     text-align: center;
-    font-size: 2.5em;
-    background-color: #5A5A5A;
+    font-size: 2.0em;
+    background-color: #111111;
 }
 
 a {
     color: #483D3F;
     text-decoration: none;
 }
+
+.modal-popup {
+    position: fixed;
+    text-align: center;
+    border: 3px solid #f1f1f1;
+    bottom: 500px;
+    right: 300px;
+    z-index: 9;
+}
+
+.form-container {
+    background-color: #111111
+}
+
+.col-25 {
+    float: left;
+
+    width: 25%;
+    height: 50%;
+    text-align: center;
+}
+
+.col-75 {
+    /* -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1; */
+    float: right;
+    width: 25%;
+    margin-top: 3px;
+    text-align: center;
+}
+
+.bottomRow {
+    top: 90%;
+}
+
+.setContainer {
+    display: none;
+    position: absolute;
+    border: solid white 1px;
+    border-radius: 6px;
+    z-index: 9;
+    width: 500px;
+    height: 300px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    top: 50%;
+    margin-top: -100px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    text-align: center;
+    font-size: .5em;
+    background-color: #111111;
+}
+
+.setContainerButton {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.normal-table {
+    display: table;
+    border: solid white 1px;
+    border-radius: 6px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    margin: auto;
+    font-size: .75em;
+    background-color: #111111;
+}
+
+.windowed-table{
+    display: table;
+    border: solid white 1px;
+    border-radius: 6px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    background-color: #111111;
+}
+
+/* .button-2 {
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 8px;
+  border-width: 0;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Anonymous Pro, sans-serif";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+} *th/

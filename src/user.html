@@ -3,6 +3,7 @@
 
 <head>
     <title>Workout Page</title>
+    <link rel="stylesheet" href="static/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -14,34 +15,39 @@
 <img src="static/almightloaf.webp">
 
 <body onload="pullProfileInfo()" class =>
-    <table id="userStats">
+    <table id="userStats" class="normal-table">
     </table>
     </table>
-    <table id="workoutTable">
+    <table id="workoutTable" class = "normal-table">
     </table>
 </body>
 <button onclick="getWorkouts(10)"> Get my Workouts</button>
-<button onclick="recordWorkout()">Record</button>
+<button onclick="openForm('insertWorkoutCont')">Record</button>
 <!-- <button onclick="openForm()"> Record my Workout</button> -->
 
-<div class="setContainer" id="workoutDetail">
+<div class="setContainer" id="workoutDetail"></div>
 
-</div>
-
-<div id="insertWorkoutCont">
-    <h1>Insert Workout Area</h1>
+<div class="addWorkoutContainer" id="insertWorkoutCont">
     <input type="workoutName" id="workout-name" placeholder = "Workout Name"/>
-    <div id="insertWorkoutDiv">
+    <div id="insertWorkoutDiv"></div>
+
+    <div class ="bottomRow" id="bottomRow">
+        <button onclick="addWorkout()">Add Exercise</button>
+        <button onclick="recordWorkout()">Record Workout</button>
+        <button onclick="closeInsertWorkoutCont()">Cancel</button>
     </div>
-    <button onclick="addWorkout()">Add Exercise</button>
-    <button onclick="recordWorkout()">Record Workout</button>
 </div>
 
 {{range.}}
 <script>
     function deleteRow(parentElement){
         parentElement.remove();
+        var workoutCont = document.getElementById("insertWorkoutCont");
+        var height = workoutCont.offsetHeight;
+        var newHeight = height - 40;
+        workoutCont.style.height = newHeight + "px"; 
     }
+
     function recordWorkout() {
         const req = new XMLHttpRequest();
         var url = "http://localhost:3333/recordWorkout?user={{.ID}}";
@@ -66,8 +72,21 @@
         console.log(JSON.stringify(sets)) 
         req.open("POST", url);
         req.send(JSON.stringify(sets));
-        workouts.innerHTML = "";
-        workoutName.value = "";
+        req.onload = () => {
+            console.log(req.readyState);
+            console.log(req.status);
+            if(req.readyState == 4 && req.status ==200){
+                workouts.innerHTML = "";
+                workoutName.value = "";
+
+                var workoutCont = document.getElementById("insertWorkoutCont");
+                workoutCont.style.display = "none";
+                closeInsertWorkoutCont();
+            }
+            else {
+                console.log("Error Recording Workout");
+            }
+        }
     }
 
     function addWorkout() {
@@ -97,6 +116,11 @@
         newExerciseRow.appendChild(rowDelete);
 
         workoutDiv.appendChild(newExerciseRow);
+
+        var workoutCont = document.getElementById("insertWorkoutCont");
+        var height = workoutCont.offsetHeight;
+        var newHeight = height + 40;
+        workoutCont.style.height = newHeight + "px";
     }
 
     function createWorkoutContainer() {
@@ -131,14 +155,22 @@
         workoutDiv.appendChild(newExerciseRow);
     }
 
-    function openForm() {
-        console.log("Hello");
-        document.getElementById('workoutDetail').style.display = "block";
+    function openForm(elementID) {
+        document.getElementById(elementID).style.display = "block";
     }
 
-    function closeForm() {
-        document.getElementById('workoutDetail').innerHTML = "";
-        document.getElementById('workoutDetail').style.display = "none";
+    function closeInsertWorkoutCont() {
+        
+        document.getElementById("workout-name").innerHTMl = "";
+        document.getElementById("insertWorkoutDiv").innerHTML = "";
+        var workoutCont = document.getElementById("insertWorkoutCont");
+        workoutCont.style.display = "none";
+        workoutCont.style.height = "69px"; 
+    }
+    function closeWorkoutDetail() {
+        var workoutDetail = document.getElementById("workoutDetail")
+        workoutDetail.innerHTML = "";
+        workoutDetail.style.display = "none";
     }
 
     function pullProfileInfo() {
@@ -203,7 +235,7 @@
     }
 
     function getWorkoutDetail(workoutID) {
-        openForm();
+        openForm("workoutDetail");
         console.log(workoutID);
         console.log("\n");
         const req = new XMLHttpRequest();
@@ -217,11 +249,12 @@
                 workoutWindow = document.getElementById('workoutDetail');
                 workoutWindow.innerHTML = '';
                 var workoutTable = document.createElement("table");
+                workoutTable.setAttribute("class", "windowed-table");
+                workoutTable.setAttribute("border", "1");
 
                 var cancelButton = document.createElement("button");
-                cancelButton.innerText = "cancel";
-                cancelButton.setAttribute("onclick", "closeForm()");
-                cancelButton.setAttribute("class", "setContainerButton");
+                cancelButton.innerText = "Cancel";
+                cancelButton.setAttribute("onclick", "closeWorkoutDetail()");
 
                 var tableCategories = document.createElement("tr");
                 var exerciseType = document.createElement("th");
@@ -239,20 +272,32 @@
 
                 workoutTable.appendChild(tableCategories);
 
+                var workoutType = "";
+                var exercise;
 
                 Object.entries(req.response).forEach(([key,value]) => {
                     console.log(key);
                     var exerciseSet = document.createElement("tr");
+                    if(workoutType == value["WorkoutType"]){
+                        var rowspan = parseInt(exercise.getAttribute("rowspan"));
+                        console.log("Row Span is: " + rowspan.toString());
+                        rowspan +=1;
+                        exercise.setAttribute("rowspan", rowspan);
 
-                    var exercise = document.createElement("td");
+                    }
+                    else{
+                        exercise = document.createElement("td");
+                        exercise.innerText = value["WorkoutType"];
+                        exercise.setAttribute("rowspan", "1");
+                        exerciseSet.appendChild(exercise);
+                        workoutType = value["WorkoutType"];
+                    }
                     var exerciseWeight = document.createElement("td");
                     var exerciseReps = document.createElement("td");
 
-                    exercise.innerText = value["WorkoutType"];
                     exerciseWeight.innerText = value["WeightAmt"];
                     exerciseReps.innerText = value["Reps"];
 
-                    exerciseSet.appendChild(exercise);
                     exerciseSet.appendChild(exerciseWeight);
                     exerciseSet.appendChild(exerciseReps);
 
@@ -264,7 +309,9 @@
             }
         }
     }
+
     function getWorkouts(num) {
+        console.log("Getting Called");
         const req = new XMLHttpRequest();
         var url = "http://localhost:3333/getUserWorkouts?user={{.ID}}&numQuery=" + num.toString();
         req.open("GET", url);
@@ -273,10 +320,9 @@
         req.onload = () => {
             console.log(req.status)
             if (req.readyState == 4 && req.status == 200) {
-                console.log(typeof req.response);
-                console.log(req.response);
                 workout = document.getElementById('workoutTable');
                 //clear workout_list on refresh
+                console.log("Hello");
                 workout.innerHTML = '';
                 const workout_categories = document.createElement("tr");
                 const workout_cat_id = document.createElement("th");
@@ -290,17 +336,19 @@
                 workout_categories.appendChild(workout_cat_user);
                 workout.appendChild(workout_categories);
                 Object.entries(req.response).forEach(([key, value]) => {
-
-                    console.log(key);
                     const workout_inst = document.createElement("tr")
                     workout_inst.ID = value['ID'];
                     const workout_name = document.createElement("td");
                     const workout_date = document.createElement("td");
                     const workout_user = document.createElement("td");
                     const workout_submit = document.createElement("button");
+                    const workoutDelete = document.createElement("button");
 
                     workout_submit.innerText="Details";
                     workout_submit.setAttribute("onclick", `getWorkoutDetail(${value['ID']})`);
+
+                    workoutDelete.innerText="Delete";
+                    workoutDelete.setAttribute("onclick", `deleteWorkout(${value['ID']})`);
 
                     workout_user.innerText = value["UserID"];
                     workout_name.innerText = value['WorkoutName'];
@@ -310,8 +358,10 @@
                     workout_inst.appendChild(workout_date);
                     workout_inst.appendChild(workout_user);
                     workout_inst.appendChild(workout_submit);
+                    workout_inst.appendChild(workoutDelete);
                     workout.appendChild(workout_inst);
-                    console.log(`${key}: ${value}`);
+                    console.log(`WorkoutName: ${value["WorkoutName"]}`);
+                    console.log(`WorkoutDate: ${value["WorkoutDate"]}`);
                 });
             }
             else {
@@ -319,108 +369,207 @@
             }
         }
     }
+
+    function deleteWorkout(workoutID){
+        const req = new XMLHttpRequest();
+        var url = "http://localhost:3333/deleteWorkout?user={{.ID}}&workoutID=" + workoutID.toString();
+        req.open("POST", url);
+        req.send();
+        console.log("Finished calling deleteWorkout");
+        req.onload = () => {
+            console.log(req.status);
+            console.log(req.readyState);
+            if(req.readyState == 4 && req.status==200){
+                console.log("Hello");
+                console.log(req.status);
+                console.log(req.readyState);
+                getWorkouts(10);
+            }
+            else{
+                console.log("Error deleting Workout!");
+            }
+        }
+    }
 </script>
 {{end}}
 
-
-</html>
-
 <style>
+#insertWorkoutDiv > * {
+    margin-left: 30px 0;
+}
     h1 {
-        text-align: center;
-    }
+    text-align: center;
+}
 
-    img {
-        border-radius: 4px;
-        width: 15%;
-    }
+img {
+    border-radius: 4px;
+    width: 15%;
+}
 
-    body {
-        color: #E1D9D1;
-        font-family: "Anonymous Pro", Arial, Helvetica, sans-serif;
-        text-align: center;
-        font-size: 2.0em;
-        background-color: #111111;
-    }
+body {
+    color: #E1D9D1;
+    font-family: "Anonymous Pro", Arial, Helvetica, sans-serif;
+    text-align: center;
+    font-size: 2.0em;
+    background-color: #111111;
+}
 
-    /* body {
-        background-color: #1E1E1E;
-        color: #FFFFFF;
-        font-family: 'Montserrat';
-        text-align: center;
-        font-size: 2.5 em;
-    } */
+a {
+    color: #483D3F;
+    text-decoration: none;
+}
 
-    table {
-        display: table;
-        border: solid white 1px;
-        border-radius: 6px;
-        color: #E1D9D1;
-        font-family: "Anonymous Pro";
-        margin: auto;
-        font-size: .75em;
-        background-color: #111111;
-    }
+input {
+    
+    background-color: #232b2b;
+    border-radius: 6px;
+    border: none;
+    color: var(--ds-gray-700);
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Anonymous Pro, sans-serif";
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    margin: 8px;
+    padding: 2px 4px;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation; 
+}
 
-    a {
-        color: #483D3F;
-        text-decoration: none;
-    }
+.modal-popup {
+    position: fixed;
+    text-align: center;
+    border: 3px solid #f1f1f1;
+    bottom: 500px;
+    right: 300px;
+    z-index: 9;
+}
 
-    .modal-popup {
-        position: fixed;
-        text-align: center;
-        border: 3px solid #f1f1f1;
-        bottom: 500px;
-        right: 300px;
-        z-index: 9;
-    }
+.form-container {
+    background-color: #111111
+}
 
-    .form-container {
-        background-color: #111111
-    }
+.col-25 {
+    float: left;
 
-    .col-25 {
-        float: left;
+    width: 25%;
+    height: 50%;
+    text-align: center;
+}
 
-        width: 25%;
-        height: 50%;
-        text-align: center;
-    }
+.col-75 {
+    /* -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1; */
+    float: right;
+    width: 25%;
+    margin-top: 3px;
+    text-align: center;
+}
 
-    .col-75 {
-        /* -webkit-column-count: 1;
-        -moz-column-count: 1;
-        column-count: 1; */
-        float: right;
-        width: 25%;
-        margin-top: 3px;
-        text-align: center;
-    }
+.bottomRow {
+    top: 90%;
+}
 
-    .setContainer {
-        display: none;
-        position: absolute;
-        border: solid white 1px;
-        border-radius: 6px;
-        z-index: 9;
-        width: 500px;
-        height: 300px;
-        left: 50%;
-        transform: translate(-50%, 0);
-        top: 50%;
-        margin-top: -100px;
-        color: #E1D9D1;
-        font-family: "Anonymous Pro";
-        text-align: center;
-        font-size: .5em;
-        background-color: #111111;
-    }
+.setContainer {
+    display: none;
+    position: absolute;
+    border: solid white 1px;
+    border-radius: 6px;
+    z-index: 9;
+    width: 500px;
+    height: 300px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    top: 50%;
+    margin-top: -100px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    text-align: center;
+    font-size: .5em;
+    background-color: #1a1a1a;
+}
 
-    .setContainerButton {
-        position: absolute;
-        top: 90%;
-        left: 50%;
-        transform: translate(-50%, 0);
-    }
+.addWorkoutContainer {
+    display: none;
+    position: absolute;
+    border: solid white 1px;
+    border-radius: 6px;
+    z-index: 9;
+    width: 600px;
+    height: 69px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    top: 50%;
+    margin-top: -100px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    text-align: center;
+    font-size: .5em;
+    background-color: #111111;
+}
+
+/* .setContainerButton {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    border: 1px solid #000;
+} */
+
+button {
+  background-color: #232b2b;
+  border-radius: 8px;
+  border-width: 0;
+  color: #E1D9D1;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Anonymous Pro, sans-serif";
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 2px 4px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.normal-table {
+    display: table;
+    border: solid white 1px;
+    border-radius: 6px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    margin: auto;
+    font-size: .75em;
+    background-color: #111111;
+}
+
+.windowed-table{
+    display: table;
+    border: solid white 1px;
+    border-radius: 6px;
+    color: #E1D9D1;
+    font-family: "Anonymous Pro";
+    margin: auto;
+    width: 90%;
+    height: 90%;
+    background-color: #1a1a1a;
+}
 </style>
+</html>

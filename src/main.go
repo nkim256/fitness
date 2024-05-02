@@ -67,6 +67,7 @@ func main() {
 	restMux.HandleFunc("/getWorkoutsMock", getWorkoutsMock)
 	restMux.HandleFunc("/recordWorkout", recordWorkout)
 	restMux.HandleFunc("/getUserWorkoutDetail", getUserWorkoutDetail)
+	restMux.HandleFunc("/deleteWorkout", deleteWorkout)
 	pageMux := http.NewServeMux()
 	pageMux.Handle("/static/", http.StripPrefix("/static/", fs))
 	pageMux.HandleFunc("/", indexHandler)
